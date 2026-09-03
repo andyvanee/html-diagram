@@ -60,6 +60,7 @@ Then open `build/1.usage.html` in a browser. The generated file includes its bun
 ## Learn More
 
 - [Design document](docs/html-diagram.md): vision, competitive landscape, element types, rendering layers, layout, styling, and the implementation roadmap.
+- [MIT License](LICENSE)
 
 ## Project Status
 

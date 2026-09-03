@@ -1,5 +1,6 @@
 {
   "name": "html-diagram",
+  "license": "MIT",
   "module": "index.ts",
   "type": "module",
   "private": true,
