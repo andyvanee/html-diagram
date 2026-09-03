@@ -28,14 +28,14 @@ Use the library when you want to place a diagram directly in an existing HTML pa
 
 The intended workflow is:
 
-1. Add the `html-diagram` package to your project.
+1. Add the `@andyvanee/html-diagram` package to your project.
 2. Import it from your page or application.
 3. Write the diagram as HTML.
 4. Use normal HTML attributes and CSS classes to describe and style it.
 
 ```html
 <script type="module">
-  import "html-diagram"
+  import "@andyvanee/html-diagram"
 </script>
 
 <html-diagram layout="dagre" direction="LR" grid="20">
@@ -62,6 +62,31 @@ Then open `build/1.usage.html` in a browser. The generated file includes its bun
 - [Design document](docs/html-diagram.md): vision, competitive landscape, element types, rendering layers, layout, styling, and the implementation roadmap.
 - [MIT License](LICENSE)
 
+## Publishing
+
+The repository has two GitHub Actions publishing paths:
+
+- **Examples:** pushes to `main` build `examples/1.usage.html` and deploy it to [GitHub Pages](https://andyvanee.github.io/html-diagram/). Enable Pages for the repository with **GitHub Actions** as its source.
+- **Library:** pushing a tag such as `v0.1.0` runs tests, builds the package, and publishes it to npm.
+
+Before the first npm release, configure npm Trusted Publishing for `@andyvanee/html-diagram`:
+
+1. Create the package on npm or publish the first version manually.
+2. In the package settings, add a GitHub Actions trusted publisher.
+3. Use `andyvanee` as the owner, `html-diagram` as the repository, and `publish.yml` as the workflow filename.
+4. Publish a new version by pushing a matching Git tag, for example `v0.1.0`.
+
+Once a version is published, it can be loaded from a browser with a pinned CDN URL:
+
+```html
+<script
+  type="module"
+  src="https://cdn.jsdelivr.net/npm/@andyvanee/html-diagram@0.1.0/dist/index.js"
+></script>
+```
+
+The equivalent UNPKG URL is `https://unpkg.com/@andyvanee/html-diagram@0.1.0/dist/index.js`. Use an exact version for stable, cacheable links. These CDN links are convenient for lightweight HTML pages; use `bun run build:examples` when the result must be a completely self-contained HTML file with no network dependency.
+
 ## Project Status
 
-The repository currently contains the design documentation, an initial Bun/TypeScript scaffold, and the first runtime foundation: `DiSchema` for property metadata and validation, and `DiElement` for declarative custom elements. Builtin diagram elements, the visual editor, and the exporter are planned next.
+The repository currently contains the design documentation, builtin diagram elements, a Bun/TypeScript package build, and the first runtime foundation: `DiSchema` for property metadata and validation, and `DiElement` for declarative custom elements. The visual editor and exporter are planned next.

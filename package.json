@@ -1,15 +1,35 @@
 {
-  "name": "html-diagram",
+  "name": "@andyvanee/html-diagram",
+  "version": "0.1.0",
+  "description": "HTML-native diagram components built with Web Components",
   "license": "MIT",
-  "module": "index.ts",
+  "repository": "https://github.com/andyvanee/html-diagram.git",
+  "module": "dist/index.js",
+  "main": "dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
-  "private": true,
   "devDependencies": {
     "@happy-dom/global-registrator": "^20.13.2",
     "@types/bun": "latest"
   },
   "scripts": {
-    "build:examples": "bun build ./examples/1.usage.html --outdir ./build --target browser && bun -e 'const output = \"./build/1.usage.html\"; const scriptPath = (await Array.fromAsync(new Bun.Glob(\"build/1.usage-*.js\").scan())).at(0); if (!scriptPath) throw new Error(\"Example bundle was not generated\"); const html = await Bun.file(output).text(); const script = await Bun.file(scriptPath).text(); await Bun.write(output, html.replace(/<script type=\"module\" crossorigin src=\"\\.\\/[^\"]+\"><\\/script>/, `<script type=\"module\">\\n${script}\\n</script>`)); await Bun.file(scriptPath).delete()'"
+    "build:examples": "bun build ./examples/1.usage.html --outdir ./build --target browser && bun -e 'const output = \"./build/1.usage.html\"; const scriptPath = (await Array.fromAsync(new Bun.Glob(\"build/1.usage-*.js\").scan())).at(0); if (!scriptPath) throw new Error(\"Example bundle was not generated\"); const html = await Bun.file(output).text(); const script = await Bun.file(scriptPath).text(); await Bun.write(output, html.replace(/<script type=\"module\" crossorigin src=\"\\.\\/[^\"]+\"><\\/script>/, `<script type=\"module\">\\n${script}\\n</script>`)); await Bun.file(scriptPath).delete()'",
+    "build:package": "rm -rf ./dist && bun build ./index.ts --outdir ./dist --target browser --format esm --minify",
+    "test": "bun test",
+    "typecheck": "bunx tsc --noEmit"
   },
   "peerDependencies": {
     "typescript": "^5"
