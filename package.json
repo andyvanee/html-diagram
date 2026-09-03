@@ -1,0 +1,25 @@
+{
+  "name": "html-diagram",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@happy-dom/global-registrator": "^20.13.2",
+    "@types/bun": "latest"
+  },
+  "scripts": {
+    "build:examples": "bun build ./examples/1.usage.html --outdir ./build --target browser && bun -e 'const output = \"./build/1.usage.html\"; const scriptPath = (await Array.fromAsync(new Bun.Glob(\"build/1.usage-*.js\").scan())).at(0); if (!scriptPath) throw new Error(\"Example bundle was not generated\"); const html = await Bun.file(output).text(); const script = await Bun.file(scriptPath).text(); await Bun.write(output, html.replace(/<script type=\"module\" crossorigin src=\"\\.\\/[^\"]+\"><\\/script>/, `<script type=\"module\">\\n${script}\\n</script>`)); await Bun.file(scriptPath).delete()'"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "prettier": {
+    "semi": false,
+    "tabWidth": 2,
+    "printWidth": 100,
+    "singleQuote": false,
+    "trailingComma": "all",
+    "bracketSpacing": true,
+    "arrowParens": "avoid"
+  }
+}

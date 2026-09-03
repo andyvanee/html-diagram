@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>html-diagram usage</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+      }
+
+      body {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        font-family: sans-serif;
+        color: #172033;
+      }
+
+      header,
+      main,
+      footer {
+        width: min(100% - 48px, 960px);
+        margin-inline: auto;
+      }
+
+      header {
+        padding-block: 40px 24px;
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        font-size: 32px;
+      }
+
+      header p {
+        margin: 0;
+        color: #526078;
+      }
+
+      main {
+        flex: 1;
+      }
+
+      html-diagram {
+        display: block;
+        height: 360px;
+        border: 1px solid #d6dce8;
+        border-radius: 8px;
+      }
+
+      footer {
+        padding-block: 24px 40px;
+        font-size: 14px;
+      }
+
+      footer a {
+        color: #1d4ed8;
+      }
+    </style>
+  </head>
+  <body>
+    <script type="module" src="../index.ts"></script>
+
+    <header>
+      <h1>html-diagram usage</h1>
+      <p>Create a diagram with familiar HTML elements and a small set of diagram attributes.</p>
+    </header>
+
+    <main>
+      <html-diagram layout="dagre" direction="LR" grid="20">
+        <d-node id="start" dx="2" dy="4">Start here</d-node>
+        <d-node id="finish" dx="14" dy="4">Finish here</d-node>
+        <d-edge from="start" to="finish" label="Next"></d-edge>
+      </html-diagram>
+    </main>
+
+    <footer>
+      <a href="https://github.com/andyvanee/html-diagram">View html-diagram on GitHub</a>
+    </footer>
+  </body>
+</html>
