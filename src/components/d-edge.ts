@@ -12,13 +12,20 @@ export type DEdgeProperties = {
 
 /** Describes an edge connector's SVG geometry. */
 type DEdgeGeometry = {
+  startCenter: DEdgePoint
   startX: number
   startY: number
+  startNormal: DEdgePoint
+  endCenter: DEdgePoint
   endX: number
   endY: number
+  endNormal: DEdgePoint
   width: number
   height: number
 }
+
+/** Represents a point in edge-local SVG coordinates. */
+type DEdgePoint = { x: number; y: number }
 
 /** Provides a declarative connection between diagram nodes or ports. */
 export class DEdge extends DiElement<DEdgeProperties> {
@@ -34,6 +41,7 @@ export class DEdge extends DiElement<DEdgeProperties> {
   protected override render() {
     const { from, to, label, line, animated } = this.properties
     const geometry = this.getGeometry(from, to)
+    const labelPosition = geometry ? getLabelPosition(geometry, line) : { x: 0, y: 0 }
     return html`<style>
         :host {
           position: absolute;
@@ -50,13 +58,14 @@ export class DEdge extends DiElement<DEdgeProperties> {
 
         .edge-label {
           position: absolute;
-          left: ${geometry ? (geometry.startX + geometry.endX) / 2 : 0}px;
-          top: ${geometry ? (geometry.startY + geometry.endY) / 2 - 6 : 0}px;
-          transform: translate(-50%, -100%);
-          color: #1e3a8a;
+          left: ${labelPosition.x}px;
+          top: ${labelPosition.y}px;
+          transform: translate(-50%, -50%);
+          color: var(--di-edge-label-color, var(--di-text-color, #1e3a8a));
           font: 12px sans-serif;
-          background: #ffffff;
-          padding: 2px 4px;
+          background: var(--di-edge-label-background, var(--di-background-color, #ffffff));
+          border-radius: var(--di-edge-label-radius, var(--di-border-radius, 0));
+          padding: var(--di-edge-label-padding, 2px 4px);
           white-space: nowrap;
         }
 
@@ -72,27 +81,28 @@ export class DEdge extends DiElement<DEdgeProperties> {
         line,
         path {
           fill: none;
-          stroke: #2563eb;
-          stroke-width: 2;
+          stroke: var(--di-edge-color, var(--di-theme-primary-color, #2563eb));
+          stroke-width: var(--di-edge-width, var(--di-theme-line-width, 2px));
           stroke-linecap: round;
           vector-effect: non-scaling-stroke;
         }
 
         marker path {
-          fill: #2563eb;
+          fill: var(--di-edge-color, var(--di-theme-primary-color, #2563eb));
           stroke: none;
         }
       </style>
       ${geometry ? this.renderConnector(geometry, line) : ""}
       <div
         class="edge-box"
+        part="edge-box"
         aria-label="${label}"
         data-from="${from}"
         data-to="${to}"
         data-line="${line}"
         data-animated="${animated}"
       >
-        ${label ? html`<span class="edge-label">${label}</span>` : ""}
+        ${label ? html`<span class="edge-label" part="edge-label">${label}</span>` : ""}
         <slot></slot>
       </div>`
   }
@@ -106,16 +116,16 @@ export class DEdge extends DiElement<DEdgeProperties> {
     const end = findEndpoint(to, diagram)
     if (!start || !end) return undefined
 
-    const diagramRect = diagram.getBoundingClientRect()
+    const edgeRect = this.getBoundingClientRect()
     const startRect = start.getBoundingClientRect()
     const endRect = end.getBoundingClientRect()
     const startCenter = {
-      x: startRect.left + startRect.width / 2 - diagramRect.left,
-      y: startRect.top + startRect.height / 2 - diagramRect.top,
+      x: startRect.left + startRect.width / 2 - edgeRect.left,
+      y: startRect.top + startRect.height / 2 - edgeRect.top,
     }
     const endCenter = {
-      x: endRect.left + endRect.width / 2 - diagramRect.left,
-      y: endRect.top + endRect.height / 2 - diagramRect.top,
+      x: endRect.left + endRect.width / 2 - edgeRect.left,
+      y: endRect.top + endRect.height / 2 - edgeRect.top,
     }
     const direction = {
       x: endCenter.x - startCenter.x,
@@ -123,13 +133,19 @@ export class DEdge extends DiElement<DEdgeProperties> {
     }
     const startPoint = getBorderPoint(startCenter, startRect, direction)
     const endPoint = getBorderPoint(endCenter, endRect, direction, true)
+    const startNormal = getBorderNormal(startRect, direction)
+    const endNormal = getBorderNormal(endRect, direction, true)
     return {
+      startCenter,
       startX: startPoint.x,
       startY: startPoint.y,
+      startNormal,
+      endCenter,
       endX: endPoint.x,
       endY: endPoint.y,
-      width: Math.max(diagramRect.width, 1),
-      height: Math.max(diagramRect.height, 1),
+      endNormal,
+      width: Math.max(edgeRect.width, 1),
+      height: Math.max(edgeRect.height, 1),
     }
   }
 
@@ -193,27 +209,88 @@ function getConnectorMarkup(
 ): DiTemplateResult {
   const { startX, startY, endX, endY } = geometry
   if (line === "curved") {
-    const controlOffset = Math.max(Math.abs(endX - startX) / 2, 40)
+    const { startControl, endControl } = getCurveControls(geometry)
     return html`<path
+      part="edge-line"
       marker-end="url(#edge-arrow)"
-      d="M ${startX} ${startY} C ${startX + controlOffset} ${startY}, ${endX -
-      controlOffset} ${endY}, ${endX} ${endY}"
+      d="M ${startX} ${startY} C ${startControl.x} ${startControl.y}, ${endControl.x}
+      ${endControl.y}, ${endX} ${endY}"
     />`
   }
   if (line === "orthogonal") {
     const midpoint = (startX + endX) / 2
     return html`<path
+      part="edge-line"
       marker-end="url(#edge-arrow)"
       d="M ${startX} ${startY} H ${midpoint} V ${endY} H ${endX}"
     />`
   }
   return html`<line
+    part="edge-line"
     marker-end="url(#edge-arrow)"
     x1="${startX}"
     y1="${startY}"
     x2="${endX}"
     y2="${endY}"
   />`
+}
+
+/** Calculates control points that bend a curve toward its destination. */
+function getCurveControls(geometry: DEdgeGeometry): {
+  startControl: DEdgePoint
+  endControl: DEdgePoint
+} {
+  const { startX, startY, endX, endY, startNormal, endNormal } = geometry
+  const controlOffset = Math.max(Math.hypot(endX - startX, endY - startY) / 2, 40)
+  return {
+    startControl: {
+      x: startX + startNormal.x * controlOffset,
+      y: startY + startNormal.y * controlOffset,
+    },
+    endControl: {
+      x: endX + endNormal.x * controlOffset,
+      y: endY + endNormal.y * controlOffset,
+    },
+  }
+}
+
+/** Finds the outward normal of the rectangle edge reached by a connector. */
+function getBorderNormal(rect: DOMRect, direction: DEdgePoint, reverse = false): DEdgePoint {
+  const halfWidth = rect.width / 2
+  const halfHeight = rect.height / 2
+  if (halfWidth === 0 || halfHeight === 0 || (direction.x === 0 && direction.y === 0)) {
+    return { x: 0, y: 0 }
+  }
+
+  const xRatio = Math.abs(direction.x) / halfWidth
+  const yRatio = Math.abs(direction.y) / halfHeight
+  const sign = reverse ? -1 : 1
+  if (xRatio > yRatio) return { x: Math.sign(direction.x) * sign, y: 0 }
+  return { x: 0, y: Math.sign(direction.y) * sign }
+}
+
+/** Finds the midpoint of the rendered connector for label placement. */
+function getLabelPosition(geometry: DEdgeGeometry, line: DEdgeProperties["line"]): DEdgePoint {
+  if (line !== "curved") {
+    return {
+      x: (geometry.startX + geometry.endX) / 2,
+      y: (geometry.startY + geometry.endY) / 2,
+    }
+  }
+
+  const { startControl, endControl } = getCurveControls(geometry)
+  return {
+    x:
+      geometry.startX * 0.125 +
+      startControl.x * 0.375 +
+      endControl.x * 0.375 +
+      geometry.endX * 0.125,
+    y:
+      geometry.startY * 0.125 +
+      startControl.y * 0.375 +
+      endControl.y * 0.375 +
+      geometry.endY * 0.125,
+  }
 }
 
 if (!customElements.get("d-edge")) {

@@ -16,36 +16,28 @@ test("creates and registers the diagram root", () => {
 
 test("applies default diagram properties", () => {
   const diagram = createDiagram()
-  diagram.setAttribute("layout", "manual")
 
   expect(diagram.properties).toEqual({
-    layout: "manual",
-    direction: "LR",
+    title: "",
     interactive: false,
     grid: 20,
+    padding: 1,
   })
 })
 
-test("accepts supported layout, direction, and interactive values", () => {
+test("accepts interactive, grid, and padding values", () => {
   const diagram = createDiagram()
-  diagram.setAttribute("layout", "dagre")
-  diagram.setAttribute("direction", "TB")
   diagram.setAttribute("interactive", "")
+  diagram.setAttribute("title", "Decision tree")
   diagram.setAttribute("grid", "10")
+  diagram.setAttribute("padding", "2")
 
   expect(diagram.properties).toEqual({
-    layout: "dagre",
-    direction: "TB",
+    title: "Decision tree",
     interactive: true,
     grid: 10,
+    padding: 2,
   })
-})
-
-test("rejects unsupported diagram property values", () => {
-  const diagram = createDiagram()
-  diagram.setAttribute("layout", "unknown")
-
-  expect(() => diagram.properties).toThrow("layout: Expected a enum")
 })
 
 test("rejects a non-positive grid size", () => {
@@ -55,20 +47,40 @@ test("rejects a non-positive grid size", () => {
   expect(() => diagram.properties).toThrow("grid: Must be at least 1")
 })
 
+test("rejects negative diagram padding", () => {
+  const diagram = createDiagram()
+  diagram.setAttribute("padding", "-1")
+
+  expect(() => diagram.properties).toThrow("padding: Must be at least 0")
+})
+
 test("renders a viewport with slotted children after connection", async () => {
   const diagram = createDiagram()
-  diagram.setAttribute("direction", "TB")
   diagram.append(document.createElement("span"))
   document.body.append(diagram)
   await Promise.resolve()
 
   expect(diagram.shadowRoot?.querySelector(".viewport")).not.toBeNull()
   expect(diagram.shadowRoot?.querySelector(".canvas slot")).not.toBeNull()
-  expect((diagram.shadowRoot?.querySelector(".viewport") as HTMLElement)?.dataset.direction).toBe(
-    "TB",
-  )
   expect(diagram.shadowRoot?.querySelector("style")?.textContent).toContain("height: 100%")
   expect((diagram.shadowRoot?.querySelector(".viewport") as HTMLElement)?.dataset.grid).toBe("20")
+})
+
+test("renders a titled callout when title is provided", async () => {
+  const diagram = createDiagram()
+  diagram.setAttribute("title", "Decision tree")
+  document.body.append(diagram)
+  await Promise.resolve()
+
+  const title = diagram.shadowRoot?.querySelector('[part="title"]')
+  expect(title?.textContent).toBe("Decision tree")
+  expect(diagram.shadowRoot?.querySelector(".title")?.textContent).toBe("Decision tree")
+  expect(diagram.shadowRoot?.querySelector("style")?.textContent).toContain(
+    "left: var(--di-canvas-radius, var(--di-border-radius, 8px))",
+  )
+  expect(diagram.shadowRoot?.querySelector("style")?.textContent).toContain(
+    "transform: translateY(-50%)",
+  )
 })
 
 test("observes diagram geometry and disconnects the observer", () => {
@@ -110,8 +122,12 @@ test("observes diagram geometry and disconnects the observer", () => {
   expect(observed).toContain(edge)
 
   edgeUpdates = 0
+  diagram.getBoundingClientRect = () => ({ left: 0, top: 0 }) as DOMRect
+  node.getBoundingClientRect = () => ({ right: 80, bottom: 160 }) as DOMRect
   resizeCallback?.([], {} as ResizeObserver)
   expect(edgeUpdates).toBe(1)
+  expect(diagram.style.getPropertyValue("--di-content-height")).toBe("180px")
+  expect(diagram.style.getPropertyValue("--di-content-width")).toBe("100px")
 
   diagram.remove()
   expect(disconnected).toBe(true)

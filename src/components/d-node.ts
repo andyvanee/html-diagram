@@ -47,25 +47,30 @@ export class DNode extends DiElement<DNodeProperties> {
         }
 
         .node {
-          border: 1px solid currentColor;
-          border-radius: 6px;
-          padding: 12px 16px;
-          background: Canvas;
-          color: CanvasText;
-          font-family: sans-serif;
+          border-color: var(--di-node-border, var(--di-border-color, currentColor));
+          border-width: var(--di-node-border-width, var(--di-border-width, 2px));
+          border-style: var(--di-node-border-style, var(--di-border-style, solid));
+          border-radius: var(--di-node-radius, var(--di-border-radius, 6px));
+          padding: var(--di-node-padding, 12px 16px);
+          background: var(--di-node-background, var(--di-background-color, Canvas));
+          color: var(--di-node-color, CanvasText);
+          box-shadow: var(--di-node-shadow, var(--di-shadow, none));
+          text-align: var(--di-node-text-align, center);
+          font-family: inherit;
           min-width: 120px;
         }
       </style>
-      <div class="node" data-type="${type}"><slot></slot></div>`
+      <div class="node" part="node" data-type="${type}"><slot></slot></div>`
   }
 
   /** Resolves pixel coordinates from explicit or grid-based attributes. */
   private getPosition(): { x: number; y: number } {
     const properties = this.properties
     const grid = this.getGridSize()
+    const padding = this.getGridPadding()
     return {
-      x: this.hasAttribute("x") ? properties.x : properties.dx * grid,
-      y: this.hasAttribute("y") ? properties.y : properties.dy * grid,
+      x: padding + (this.hasAttribute("x") ? properties.x : properties.dx * grid),
+      y: padding + (this.hasAttribute("y") ? properties.y : properties.dy * grid),
     }
   }
 
@@ -85,6 +90,18 @@ export class DNode extends DiElement<DNodeProperties> {
     if (!(diagram instanceof HTMLElement)) return 20
     const grid = Number(diagram.getAttribute("grid"))
     return Number.isFinite(grid) && grid > 0 ? grid : 20
+  }
+
+  /** Reads the diagram padding in pixels. */
+  private getGridPadding(): number {
+    const diagram = this.closest("html-diagram")
+    if (!(diagram instanceof HTMLElement)) return 20
+    const paddingAttribute = diagram.getAttribute("padding")
+    if (paddingAttribute === null) return this.getGridSize()
+    const padding = Number(paddingAttribute)
+    return Number.isFinite(padding) && padding >= 0
+      ? padding * this.getGridSize()
+      : this.getGridSize()
   }
 }
 

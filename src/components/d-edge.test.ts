@@ -74,6 +74,11 @@ test("renders edge metadata after connection", async () => {
   expect(rendered?.dataset.to).toBe("finish")
   expect(rendered?.getAttribute("aria-label")).toBe("Next")
   expect(rendered?.querySelector(".edge-label")?.textContent).toBe("Next")
+  expect(rendered?.getAttribute("part")).toBe("edge-box")
+  expect(rendered?.querySelector('[part="edge-label"]')?.textContent).toBe("Next")
+  expect(edge.shadowRoot?.querySelector("style")?.textContent).toContain(
+    "transform: translate(-50%, -50%)",
+  )
 })
 
 test("renders a visible SVG connector between endpoint elements", async () => {
@@ -90,6 +95,7 @@ test("renders a visible SVG connector between endpoint elements", async () => {
   document.body.append(diagram)
 
   diagram.getBoundingClientRect = () => ({ left: 0, top: 0, width: 640, height: 240 }) as DOMRect
+  edge.getBoundingClientRect = () => ({ left: 0, top: 0, width: 640, height: 240 }) as DOMRect
   start.getBoundingClientRect = () => ({ left: 40, top: 80, width: 120, height: 40 }) as DOMRect
   finish.getBoundingClientRect = () => ({ left: 280, top: 80, width: 120, height: 40 }) as DOMRect
   edge.requestUpdate()
@@ -104,5 +110,29 @@ test("renders a visible SVG connector between endpoint elements", async () => {
   expect(edge.shadowRoot?.querySelector(".edge-label") ?? null).toBeNull()
   expect(edge.shadowRoot?.querySelector("marker")).not.toBeNull()
   expect(edge.shadowRoot?.querySelector("svg")?.getAttribute("preserveAspectRatio")).toBe("none")
-  expect(edge.shadowRoot?.querySelector("style")?.textContent).toContain("stroke: #2563eb")
+  expect(edge.shadowRoot?.querySelector("style")?.textContent).toContain(
+    "stroke: var(--di-edge-color, var(--di-theme-primary-color, #2563eb))",
+  )
+})
+
+test("curves toward a diagonal target", async () => {
+  const diagram = document.createElement("html-diagram")
+  const start = document.createElement("div")
+  const finish = document.createElement("div")
+  const edge = createEdge()
+  start.id = "curve-start"
+  finish.id = "curve-finish"
+  edge.setAttribute("from", start.id)
+  edge.setAttribute("to", finish.id)
+  edge.setAttribute("line", "curved")
+  diagram.append(start, finish, edge)
+  document.body.append(diagram)
+
+  edge.getBoundingClientRect = () => ({ left: 0, top: 0, width: 640, height: 400 }) as DOMRect
+  start.getBoundingClientRect = () => ({ left: 280, top: 80, width: 120, height: 40 }) as DOMRect
+  finish.getBoundingClientRect = () => ({ left: 40, top: 280, width: 120, height: 40 }) as DOMRect
+  edge.requestUpdate()
+  await Promise.resolve()
+
+  expect(edge.shadowRoot?.querySelector("svg > path")?.getAttribute("d")).toContain("C 316 244")
 })

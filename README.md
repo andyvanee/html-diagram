@@ -37,13 +37,19 @@ The intended workflow is:
 <script type="module">
   import "@andyvanee/html-diagram"
 </script>
+<link rel="stylesheet" href="node_modules/@andyvanee/html-diagram/default.css" />
 
-<html-diagram layout="dagre" direction="LR" grid="20">
+<html-diagram title="Christmas decision tree" grid="20" padding="1">
   <d-node id="start" dx="2" dy="4">Start here</d-node>
   <d-node id="finish" dx="14" dy="4">Finish here</d-node>
   <d-edge from="start" to="finish" label="Next"></d-edge>
 </html-diagram>
 ```
+
+The package includes a default theme at `@andyvanee/html-diagram/default.css`. Load it as a
+stylesheet or copy its CSS into your own stylesheets, then override its `--di-*` custom properties
+on `html-diagram` for a local theme. The `padding` attribute is measured in grid spaces and
+defaults to one space on every side. The optional `title` attribute renders a top-left callout.
 
 **Requirements:** an HTML document and a browser that supports Web Components. The package and runtime API are still being developed, so this example shows the planned import and markup style.
 

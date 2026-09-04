@@ -44,7 +44,11 @@ export abstract class DiElement<
   }
 
   /** Schedules rendering after an observed attribute changes. */
-  attributeChangedCallback(): void {
+  attributeChangedCallback(
+    _name: string,
+    _oldValue: string | null,
+    _newValue: string | null,
+  ): void {
     this.requestUpdate()
   }
 

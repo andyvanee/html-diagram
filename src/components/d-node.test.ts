@@ -71,7 +71,7 @@ test("converts grid shorthand attributes using the containing diagram grid", asy
   expect(node.properties.dy).toBe(4)
   expect(node.properties.dw).toBe(2)
   expect(node.properties.dh).toBe(3)
-  expect(node.shadowRoot?.querySelector("style")?.textContent).toContain("translate(0px, 80px)")
+  expect(node.shadowRoot?.querySelector("style")?.textContent).toContain("translate(20px, 100px)")
   expect(node.shadowRoot?.querySelector("style")?.textContent).toContain("width: 40px")
   expect(node.shadowRoot?.querySelector("style")?.textContent).toContain("height: 60px")
 })
@@ -89,7 +89,7 @@ test("prefers explicit pixel coordinates and dimensions over grid shorthand", as
   document.body.append(diagram)
   await Promise.resolve()
 
-  expect(node.shadowRoot?.querySelector("style")?.textContent).toContain("translate(10px, 0px)")
+  expect(node.shadowRoot?.querySelector("style")?.textContent).toContain("translate(30px, 20px)")
   expect(node.shadowRoot?.querySelector("style")?.textContent).toContain("width: 55px")
 })
 
@@ -118,6 +118,7 @@ test("renders positioned node content after connection", async () => {
   await Promise.resolve()
 
   expect((node.shadowRoot?.querySelector(".node") as HTMLElement)?.dataset.type).toBe("default")
+  expect(node.shadowRoot?.querySelector('[part="node"]')).not.toBeNull()
   expect(node.shadowRoot?.querySelector("slot")).not.toBeNull()
   expect(node.shadowRoot?.host).toBe(node)
 })

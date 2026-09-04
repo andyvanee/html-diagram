@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>html-diagram usage</title>
+    <link rel="stylesheet" href="../styles/default.css" />
     <style>
       html,
       body {
@@ -43,13 +44,6 @@
         flex: 1;
       }
 
-      html-diagram {
-        display: block;
-        height: 360px;
-        border: 1px solid #d6dce8;
-        border-radius: 8px;
-      }
-
       footer {
         padding-block: 24px 40px;
         font-size: 14px;
@@ -69,10 +63,19 @@
     </header>
 
     <main>
-      <html-diagram layout="dagre" direction="LR" grid="20">
-        <d-node id="start" dx="2" dy="4">Start here</d-node>
-        <d-node id="finish" dx="14" dy="4">Finish here</d-node>
-        <d-edge from="start" to="finish" label="Next"></d-edge>
+      <html-diagram title="Christmas decision tree" grid="20" padding="2">
+        <d-node id="christmas" type="service" dx="10" dy="0">Christmas</d-node>
+        <d-node id="shopping" type="service" dx="10" dy="6">Go shopping</d-node>
+        <d-node id="think" type="database" dx="10" dy="12">Let me think</d-node>
+        <d-node id="laptop" dx="0" dy="20">Laptop</d-node>
+        <d-node id="iphone" dx="10" dy="20">iPhone</d-node>
+        <d-node id="car" dx="20" dy="20">Car</d-node>
+
+        <d-edge from="christmas" to="shopping" label="Get money"></d-edge>
+        <d-edge from="shopping" to="think"></d-edge>
+        <d-edge from="think" to="laptop" label="One" line="curved"></d-edge>
+        <d-edge from="think" to="iphone" label="Two"></d-edge>
+        <d-edge from="think" to="car" label="Three" line="curved"></d-edge>
       </html-diagram>
     </main>
 

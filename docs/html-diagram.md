@@ -34,7 +34,7 @@ The proposed `<html-diagram>` component combines the useful parts of both approa
 The library introduces five distinct element types to support rich architectural, flow, and sequence diagrams.
 
 ```html
-<html-diagram class="theme-dark" layout="dagre" direction="LR" grid="20" interactive>
+<html-diagram class="theme-dark" title="System architecture" grid="20" interactive>
   <!-- Annotations / watermarks -->
   <d-watermark>SYSTEM ARCHITECTURE v2</d-watermark>
   <d-annotation x="520" y="80">Primary ingress cluster</d-annotation>
@@ -82,7 +82,7 @@ The library introduces five distinct element types to support rich architectural
 
 ### **Element Breakdown**
 
-> 1. **\<html-diagram\>**: Top-level viewport. Handles coordinate transforms (pan/zoom), auto-layout execution, SVG overlay synchronization, and DOM mutation events.
+> 1. **\<html-diagram\>**: Top-level viewport. Handles coordinate transforms (pan/zoom), SVG overlay synchronization, and DOM mutation events.
 > 2. **\<d-node\>**: Primary layout block. Operates as an absolute wrapper positioning any light-DOM children.
 > 3. **\<d-group\> & \<d-subgraph\>**: Container blocks that cluster related nodes into visual sub-networks or collapsible boundaries.
 > 4. **\<d-swimlane\> & \<d-pool\>**: Row/column structural wrappers for temporal sequences and state machines.
@@ -122,27 +122,10 @@ Explicit pixel attributes take precedence when both forms are present. For examp
 > 2. **Path Geometry Calculation:** Edge paths (curved, orthogonal, or straight) are calculated using a Ray-AABB (Axis-Aligned Bounding Box) clipping algorithm to ensure connectors terminate at node borders or explicit \<d-port\> targets.
 > 3. **Frame-Debounced Updates:** Path updates are batched into requestAnimationFrame render steps to eliminate layout thrashing and avoid ResizeObserver loop limit warnings.
 
-## **5\. Layout Engine Strategy**
+## **5\. Positioning Strategy**
 
-```text
-<html-diagram> init
-        |
-Has manual x/y on all <d-node> elements?
-        |
-   +----+----+
-  YES        NO
-   |          |
-Skip engine  Execute auto-layout
-Render direct (Dagre / ElkJS worker)
-                  |
-                  v
-       Write calculated x/y back
-       as DOM attributes
-```
-
-> - **Manual Positioning:** If explicit x and y attributes exist on \<d-node\> elements, layout calculations are bypassed.
-> - **Automated Graph Layout:** Integrated drivers (e.g., **Dagre** for layered graphs, **ElkJS** for nested block architectures) run asynchronously (preferably via Web Workers).
-> - **DOM Synchronization:** Calculated layouts mutate the target \<d-node\> DOM attributes (x="240" y="120"), ensuring the raw HTML string remains a complete representation of the diagram state.
+> - **Manual Positioning:** Node coordinates are declared with x/y pixels or dx/dy grid units, and dimensions can be declared with width/height pixels or dw/dh grid units.
+> - **Visual Editing:** A future editor can mutate those DOM attributes directly, keeping the HTML representation as the diagram's source of truth.
 
 ## **6\. CSS Theme & Visual Architecture**
 
@@ -238,9 +221,9 @@ To enable future drag-and-drop editing and live visual configuration:
 > - Implementation of \<d-group\>, \<d-subgraph\>, and \<d-port\>.
 > - Comprehensive CSS Custom Property theme system and dark/light preset tokens.
 
-### **Phase 3: Layout Integration**
+### **Phase 3: Visual Editor Integration**
 
-> - Integration of auto-layout drivers (Dagre / ElkJS).
+> - Visual editing tools for selecting, moving, and resizing nodes.
 > - Web Worker offloading for graph positioning.
 
 ### **Phase 4: Interactive Editing Engine**
