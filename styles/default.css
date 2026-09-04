@@ -87,3 +87,24 @@ html-diagram[interactive] d-node:hover::part(node) {
 d-edge::part(edge-label) {
   box-shadow: 0 1px 3px rgba(31, 41, 55, 0.12);
 }
+
+db-table-column-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 600;
+}
+
+db-table-column-type {
+  color: var(--di-table-column-type-color, var(--di-muted-color));
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+}
+
+db-table-column-constraints {
+  color: var(--di-table-column-constraints-color, var(--di-theme-primary-color));
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}

@@ -61,7 +61,20 @@ Build the usage example with Bun:
 bun run build:examples
 ```
 
-Then open `build/1.usage.html` in a browser. The generated file includes its bundled browser script, so it can be opened directly without a web server.
+Then open `build/1.usage.html` or `build/2.database.html` in a browser. The generated files include their bundled browser scripts, so they can be opened directly without a web server.
+
+Database tables keep schema content in ordinary text nodes:
+
+```html
+<db-table id="users" dx="0" dy="0">
+  <db-table-name>Users</db-table-name>
+  <db-table-column>
+    <db-table-column-name>id</db-table-column-name>
+    <db-table-column-type>int</db-table-column-type>
+    <db-table-column-constraints>PK</db-table-column-constraints>
+  </db-table-column>
+</db-table>
+```
 
 ## Learn More
 

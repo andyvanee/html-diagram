@@ -56,7 +56,7 @@ export class HtmlDiagram extends DiElement<HtmlDiagramProperties> {
   ) {
     super.attributeChangedCallback(name, oldValue, newValue)
     if (name !== "grid" && name !== "padding") return
-    for (const node of Array.from(this.querySelectorAll<HTMLElement>("d-node"))) {
+    for (const node of Array.from(this.querySelectorAll<HTMLElement>("d-node, db-table"))) {
       const updateableNode = node as HTMLElement & { requestUpdate?: () => void }
       updateableNode.requestUpdate?.()
     }
@@ -126,7 +126,7 @@ export class HtmlDiagram extends DiElement<HtmlDiagramProperties> {
   private updateContentSize(): void {
     const diagramRect = this.getBoundingClientRect()
     const padding = this.properties.padding * this.properties.grid
-    const contentBounds = Array.from(this.querySelectorAll<HTMLElement>("d-node")).reduce(
+    const contentBounds = Array.from(this.querySelectorAll<HTMLElement>("d-node, db-table")).reduce(
       (bounds, node) => {
         const nodeRect = node.getBoundingClientRect()
         return {
@@ -146,7 +146,9 @@ export class HtmlDiagram extends DiElement<HtmlDiagramProperties> {
   private observeResizeTargets(): void {
     if (!this.resizeObserver) return
     this.resizeObserver.observe(this)
-    for (const element of Array.from(this.querySelectorAll<HTMLElement>("[id], d-node, d-edge"))) {
+    for (const element of Array.from(
+      this.querySelectorAll<HTMLElement>("[id], d-node, db-table, d-edge"),
+    )) {
       this.resizeObserver.observe(element)
     }
   }

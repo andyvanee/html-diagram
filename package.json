@@ -27,7 +27,7 @@
     "@types/bun": "latest"
   },
   "scripts": {
-    "build:examples": "bun build --compile --minify --target=browser ./examples/1.usage.html --outdir=build",
+    "build:examples": "bun build --compile --minify --target=browser ./examples/*.html --outdir=build",
     "build:package": "rm -rf ./dist && mkdir -p ./dist && cp ./styles/default.css ./dist/default.css && bun build ./index.ts --outdir ./dist --target browser --format esm --minify",
     "test": "bun test",
     "typecheck": "bunx tsc --noEmit"

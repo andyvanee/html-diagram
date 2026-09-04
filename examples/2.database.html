@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>html-diagram database tables</title>
+    <link rel="stylesheet" href="../styles/default.css" />
+    <style>
+      html,
+      body {
+        margin: 0;
+      }
+
+      body {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        font-family: sans-serif;
+        color: #172033;
+      }
+
+      header,
+      main,
+      footer {
+        width: min(100% - 48px, 960px);
+        margin-inline: auto;
+      }
+
+      header {
+        padding-block: 40px 24px;
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        font-size: 32px;
+      }
+
+      header p {
+        margin: 0;
+        color: #526078;
+      }
+
+      main {
+        flex: 1;
+      }
+
+      footer {
+        padding-block: 24px 40px;
+        font-size: 14px;
+      }
+
+      footer a {
+        color: #1d4ed8;
+      }
+    </style>
+  </head>
+  <body>
+    <script type="module" src="../index.ts"></script>
+
+    <header>
+      <h1>Database tables</h1>
+      <p>Describe relational schemas with HTML table elements and text content.</p>
+    </header>
+
+    <main>
+      <html-diagram title="User schema" grid="20" padding="2">
+        <db-table id="users" dx="0" dy="0">
+          <db-table-name>Users</db-table-name>
+          <db-table-column>
+            <db-table-column-name>id</db-table-column-name>
+            <db-table-column-type>int</db-table-column-type>
+            <db-table-column-constraints>PK</db-table-column-constraints>
+          </db-table-column>
+          <db-table-column>
+            <db-table-column-name>role_id</db-table-column-name>
+            <db-table-column-type>int</db-table-column-type>
+            <db-table-column-constraints>FK</db-table-column-constraints>
+          </db-table-column>
+          <db-table-column>
+            <db-table-column-name>email</db-table-column-name>
+            <db-table-column-type>varchar</db-table-column-type>
+            <db-table-column-constraints>UNIQUE</db-table-column-constraints>
+          </db-table-column>
+        </db-table>
+
+        <db-table id="roles" dx="14" dy="8">
+          <db-table-name>Roles</db-table-name>
+          <db-table-column>
+            <db-table-column-name>id</db-table-column-name>
+            <db-table-column-type>int</db-table-column-type>
+            <db-table-column-constraints>PK</db-table-column-constraints>
+          </db-table-column>
+          <db-table-column>
+            <db-table-column-name>name</db-table-column-name>
+            <db-table-column-type>varchar</db-table-column-type>
+          </db-table-column>
+        </db-table>
+
+        <db-table id="permissions" dx="28" dy="16">
+          <db-table-name>Permissions</db-table-name>
+          <db-table-column>
+            <db-table-column-name>id</db-table-column-name>
+            <db-table-column-type>int</db-table-column-type>
+            <db-table-column-constraints>PK</db-table-column-constraints>
+          </db-table-column>
+          <db-table-column>
+            <db-table-column-name>role_id</db-table-column-name>
+            <db-table-column-type>int</db-table-column-type>
+            <db-table-column-constraints>FK</db-table-column-constraints>
+          </db-table-column>
+          <db-table-column>
+            <db-table-column-name>name</db-table-column-name>
+            <db-table-column-type>varchar</db-table-column-type>
+          </db-table-column>
+        </db-table>
+
+        <d-edge from="users" to="roles" label="Has N"></d-edge>
+        <d-edge from="roles" to="permissions" label="Grants N"></d-edge>
+      </html-diagram>
+    </main>
+
+    <footer>
+      <a href="https://github.com/andyvanee/html-diagram">View html-diagram on GitHub</a>
+    </footer>
+  </body>
+</html>
